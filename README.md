@@ -1,159 +1,194 @@
-# Turborepo starter
+# CloudPix
 
-This Turborepo starter is maintained by the Turborepo core team.
+CloudPix is a production-grade, event-driven image processing platform built to demonstrate scalable backend architecture and modern cloud-native engineering practices.
 
-## Using this example
+The project is designed as a portfolio-grade backend system inspired by architectures used at companies such as Amazon, Netflix, Uber, Cloudflare, and Stripe.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## Project Goals
+
+CloudPix aims to provide a scalable pipeline for processing user-uploaded images.
+
+Current focus:
+
+* Production-grade backend architecture
+* Event-driven processing
+* Containerized development environment
+* Distributed system design
+* AWS-native infrastructure
+
+Future capabilities include:
+
+* Image resizing and optimization
+* Multiple output formats (WebP, AVIF, JPEG)
+* Video transcoding (FFmpeg)
+* OCR
+* AI image captioning
+* NSFW detection
+* Background removal
+* Duplicate image detection
+* Analytics dashboard
+
+---
+
+## High-Level Architecture
+
+```text
+Client (Next.js)
+        │
+        ▼
+API Service (Express)
+        │
+Authentication (JWT)
+        │
+Generate Pre-signed URL
+        │
+Amazon S3
+        │
+Object Created Event
+        │
+Amazon SQS
+        │
+Worker Service
+        │
+Sharp
+        │
+Processed S3 Bucket
+        │
+PostgreSQL
+        │
+Redis
+        │
+CloudFront CDN
+        │
+End User
 ```
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## Tech Stack
 
-### Apps and Packages
+### Backend
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+* Node.js
+* TypeScript
+* Express
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Frontend
 
-### Utilities
+* Next.js
 
-This Turborepo has some additional tools already setup for you:
+### Storage
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+* Amazon S3
 
-### Build
+### Queue
 
-To build all apps and packages, run the following command:
+* Amazon SQS
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+### Database
 
-```sh
-cd my-turborepo
-turbo build
+* PostgreSQL
+* Prisma ORM
+
+### Cache
+
+* Redis
+
+### Image Processing
+
+* Sharp
+
+### Infrastructure
+
+* Docker
+* Docker Compose
+* Nginx
+
+### Authentication
+
+* JWT
+* Refresh Tokens
+
+### Monitoring & Logging
+
+* Prometheus
+* Grafana
+* Loki
+* Winston
+
+### Deployment
+
+* AWS
+
+### CI/CD
+
+* GitHub Actions
+
+---
+
+## Repository Structure
+
+```text
+cloudpix/
+│
+├── apps/
+│   ├── api/
+│   ├── worker/
+│   └── web/
+│
+├── packages/
+│   ├── shared/
+│   └── config/
+│
+├── infra/
+│   ├── docker/
+│   └── nginx/
+│
+├── docs/
+│
+├── scripts/
+│
+├── package.json
+├── pnpm-workspace.yaml
+├── turbo.json
+└── README.md
 ```
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
-```
+## Development Principles
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+This project follows modern backend engineering practices:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+* Monorepo architecture with pnpm workspaces
+* Turborepo for build orchestration
+* Docker-first development
+* Event-driven architecture
+* Stateless services
+* Infrastructure as Code
+* Shared packages for reusable logic
+* Production-oriented folder organization
 
-```sh
-turbo build --filter=docs
-```
+---
 
-Without global `turbo`:
+## Learning Objectives
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+This project is being built to understand and implement:
 
-### Develop
+* Distributed systems
+* Event-driven architecture
+* Docker and container orchestration
+* Backend scalability
+* Cloud-native development
+* AWS services
+* Production deployment
+* Monitoring and observability
+* CI/CD pipelines
 
-To develop all apps and packages, run the following command:
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## License
 
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+This project is intended for educational and portfolio purposes.
