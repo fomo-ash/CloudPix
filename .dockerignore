@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+docs
+
+# Local dependencies
+node_modules
+
+# Build outputs
+dist
+.next
+.turbo
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+
+
+# Coverage
+coverage

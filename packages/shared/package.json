@@ -1,0 +1,15 @@
+{
+    "name": "@cloudpix/shared",
+    "version": "1.0.0",
+    "private": true,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "dev": "tsc --watch -p tsconfig.json",
+        "check-types": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "typescript": "5.9.2"
+    }
+}
