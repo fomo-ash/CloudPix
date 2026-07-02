@@ -1,8 +1,6 @@
-import app from './app'
+import app from "./app";
+import { env } from "@cloudpix/env";
 
-const PORT = Number(process.env.PORT) || 3100;
-
-app.listen(PORT, () => {
-    console.log(`API running on Port ${PORT} `);
-})
-
+app.listen(env.PORT, () => {
+    console.log(`API running on Port ${env.PORT}`);
+});

@@ -6,6 +6,6 @@ const app = express();
 
 app.use(express.json());
 
-app.use('/', healthrouter);
+app.use('/health', healthrouter);
 
 export default app;

@@ -1,12 +1,14 @@
-import { Router } from "express"
+import { Router } from "express";
+
+import {
+    liveness,
+    readiness
+} from "../controllers/health.controller";
 
 const router = Router();
 
-router.get("/health", (req, res) => {
-    res.status(200).json({
-        status: 'ok',
-        service: 'api',
-    })
-});
+router.get("/live", liveness);
+
+router.get("/ready", readiness);
 
 export default router;
