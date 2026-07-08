@@ -19,8 +19,14 @@ COPY pnpm-workspace.yaml .
 COPY turbo.json .
 
 COPY apps/api/package.json apps/api/
+COPY apps/worker/package.json apps/worker/
+COPY apps/web/package.json apps/web/
+
 COPY packages/config/package.json packages/config/
 COPY packages/shared/package.json packages/shared/
+COPY packages/aws/package.json packages/aws/
+COPY packages/env/package.json packages/env/
+COPY packages/database/package.json packages/database/
 
 RUN pnpm install --frozen-lockfile
 

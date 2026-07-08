@@ -116,6 +116,22 @@ During implementation the following engineering challenges were resolved:
 
 ---
 
+## Port Mapping & Environment Overrides
+
+During container orchestration, a mismatch can occur between the host port and the container's internal listening port:
+
+1. **Host Port Configuration**: Defined in the `.env` file via `PORT` (e.g., `3100`), mapping to the container's port `3000` using `${PORT}:3000`.
+2. **Container Listening Port**: The application uses the `PORT` environment variable (`env.PORT`) to determine its binding port. If `.env` is loaded directly via `env_file`, the container's `PORT` inside the container becomes `3100`.
+3. **Health Check Mismatch**: The health check queries `http://localhost:3000/health/live`. If the application binds to `3100` inside the container, the health check fails, marking the container as unhealthy.
+
+### The Solution
+We override `PORT=3000` in the container's `environment` block in `docker-compose.yml`. This:
+*   Forces the application inside the container to always listen on port `3000`.
+*   Allows the container health check to succeed.
+*   Allows you to run the application on any host port (e.g. `3100`) by setting it in your `.env` file, without affecting the container's internal port settings.
+
+---
+
 ## Future Improvements
 
 ### Infrastructure

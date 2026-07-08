@@ -45,4 +45,7 @@ yarn-error.log*
 
 /public
 
+# Local test assets
+test-cloudpix.png
+
 

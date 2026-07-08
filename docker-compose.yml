@@ -62,6 +62,8 @@ services:
 
     env_file:
       - .env
+    environment:
+      - PORT=3000
 
     depends_on:
       postgres:
@@ -94,6 +96,30 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+
+    networks:
+      - cloudpix-network
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+
+    container_name: cloudpix-web
+
+    restart: unless-stopped
+
+    ports:
+      - "${WEB_PORT}:3000"
+
+    env_file:
+      - .env
+    environment:
+      - PORT=3000
+
+    depends_on:
+      api:
         condition: service_healthy
 
     networks:

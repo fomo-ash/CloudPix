@@ -1,4 +1,15 @@
-import { nextJsConfig } from "@repo/eslint-config/next-js";
-
 /** @type {import("eslint").Linter.Config[]} */
-export default nextJsConfig;
+export default [
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "dist/**"
+    ]
+  },
+  {
+    rules: {
+      "no-unused-vars": "warn",
+    }
+  }
+];
