@@ -36,7 +36,7 @@ FROM deps AS builder
 
 COPY . .
 
-RUN pnpm --filter @cloudpix/shared build && pnpm --filter @cloudpix/web build
+RUN npx turbo run build --filter=@cloudpix/web
 
 #Runner
 

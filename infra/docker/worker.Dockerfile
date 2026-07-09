@@ -36,7 +36,9 @@ FROM deps AS builder
 
 COPY . .
 
-RUN pnpm --filter @cloudpix/worker build
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" DIRECT_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm --filter @cloudpix/database run generate
+
+RUN npx turbo run build --filter=@cloudpix/worker
 
 #Runner
 

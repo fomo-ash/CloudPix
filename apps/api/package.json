@@ -12,6 +12,7 @@
         "@cloudpix/env": "workspace:^",
         "@cloudpix/shared": "workspace:^",
         "@cloudpix/aws": "workspace:^",
+        "@cloudpix/database": "workspace:^",
         "express": "^5.2.1",
         "uuid": "^14.0.1"
     },

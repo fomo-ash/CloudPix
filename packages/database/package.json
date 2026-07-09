@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
+    "build": "tsc -p tsconfig.json && cp -r generated dist/",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio"
@@ -13,6 +16,8 @@
     "dotenv": "^17.4.2"
   },
   "devDependencies": {
-    "prisma": "^6.10.1"
+    "@types/node": "^26.1.1",
+    "prisma": "^6.10.1",
+    "typescript": "5.9.2"
   }
 }

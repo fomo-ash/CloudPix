@@ -26,6 +26,9 @@ importers:
       '@cloudpix/aws':
         specifier: workspace:^
         version: link:../../packages/aws
+      '@cloudpix/database':
+        specifier: workspace:^
+        version: link:../../packages/database
       '@cloudpix/env':
         specifier: workspace:^
         version: link:../../packages/env
@@ -159,9 +162,15 @@ importers:
         specifier: ^17.4.2
         version: 17.4.2
     devDependencies:
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
       prisma:
         specifier: ^6.10.1
         version: 6.19.3(typescript@5.9.2)
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
 
   packages/env:
     dependencies:
@@ -924,6 +933,9 @@ packages:
 
   '@types/node@26.1.0':
     resolution: {integrity: sha512-O0A1G3xPGy4w7AgQdAQYUlQ+BKk2Oovw8eRpofyp5KdBZULnbe+WqaOVNrm705SHphCiG4XHsACrSmPu1f+Kgw==}
+
+  '@types/node@26.1.1':
+    resolution: {integrity: sha512-nxAkRSVkN1Y0JC1W8ky/fTfkGsMmcrRsbx+3XoZE+rMOX71kLYTV7fLXpqud1GpbpP5TuffXFqfX7fH2GgZREw==}
 
   '@types/qs@6.15.1':
     resolution: {integrity: sha512-GZHUBZR9hckSUhrxmp1nG6NwdpM9fCunJwyThLW1X3AyHgd9IlHb6VANpQQqDr2o/qQp6McZ3y/IA2rVzKzSbw==}
@@ -2481,17 +2493,17 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.20.0
+      '@types/node': 26.1.0
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.20.0
+      '@types/node': 26.1.0
 
   '@types/estree@1.0.9': {}
 
   '@types/express-serve-static-core@5.1.1':
     dependencies:
-      '@types/node': 22.20.0
+      '@types/node': 26.1.0
       '@types/qs': 6.15.1
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -2518,6 +2530,10 @@ snapshots:
     dependencies:
       undici-types: 8.3.0
 
+  '@types/node@26.1.1':
+    dependencies:
+      undici-types: 8.3.0
+
   '@types/qs@6.15.1': {}
 
   '@types/range-parser@1.2.7': {}
@@ -2532,12 +2548,12 @@ snapshots:
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 22.20.0
+      '@types/node': 26.1.0
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 22.20.0
+      '@types/node': 26.1.0
 
   '@types/uuid@11.0.0':
     dependencies:

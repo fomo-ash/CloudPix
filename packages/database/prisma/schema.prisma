@@ -15,7 +15,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum ImageStatus {
+enum AssetStatus {
   UPLOADED
   QUEUED
   PROCESSING
@@ -23,7 +23,7 @@ enum ImageStatus {
   FAILED
 }
 
-model Image {
+model Asset {
 
   id               String   @id @default(uuid())
 
@@ -45,7 +45,7 @@ model Image {
 
   ocrText          String?
 
-  status           ImageStatus @default(UPLOADED)
+  status           AssetStatus @default(UPLOADED)
 
   createdAt        DateTime @default(now())
 
