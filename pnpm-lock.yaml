@@ -115,9 +115,15 @@ importers:
 
   apps/worker:
     dependencies:
+      '@cloudpix/aws':
+        specifier: workspace:^
+        version: link:../../packages/aws
       '@cloudpix/env':
         specifier: workspace:^
         version: link:../../packages/env
+      '@cloudpix/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
     devDependencies:
       '@types/node':
         specifier: ^22.15.3

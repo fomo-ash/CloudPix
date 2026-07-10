@@ -14,6 +14,8 @@
         "typescript": "5.9.2"
     },
     "dependencies": {
-        "@cloudpix/env": "workspace:^"
+        "@cloudpix/env": "workspace:^",
+        "@cloudpix/aws": "workspace:^",
+        "@cloudpix/shared": "workspace:^"
     }
 }

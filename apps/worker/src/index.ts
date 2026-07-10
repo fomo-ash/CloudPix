@@ -1,4 +1,5 @@
 import { env } from "@cloudpix/env";
+import { startWorker } from "./worker";
 
 console.log("CloudPix Worker started.");
 
@@ -13,6 +14,8 @@ async function shutdown(signal: string) {
 
     process.exit(0);
 }
+
+startWorker().catch(console.error);
 
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
