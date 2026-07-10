@@ -82,6 +82,8 @@ Responsible for
 
 Runs asynchronously.
 
+For a detailed deep-dive, see the [Worker and SQS Integration documentation](file:///Ubuntu/home/ashutosh/projects/Imagica/docs/backend/worker-and-sqs-integration.md).
+
 ---
 
 ## PostgreSQL

@@ -3,3 +3,9 @@ export interface S3ObjectCreatedEvent {
   objectKey: string;
   eventTime: Date;
 }
+
+export interface DownloadedObject {
+    buffer: Buffer;
+    contentType?: string;
+    contentLength?: number;
+}

@@ -5,3 +5,4 @@ export * from "./services/s3.service";
 export * from "./services/sqs.service";
 
 export * from "./config/aws.config";
+export * from "./services/s3-storage";
