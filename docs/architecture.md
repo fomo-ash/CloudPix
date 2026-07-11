@@ -295,7 +295,7 @@ Instead of HTTP requests, we're routing **events**.
 
 # Current Package Responsibilities
 
-## [API Package](file:///Ubuntu/home/ashutosh/projects/Imagica/apps/api/)
+## [API Package](../apps/api/)
 
 Responsible for:
 
@@ -308,43 +308,43 @@ Never processes images.
 
 ---
 
-## [AWS Package](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/aws/)
+## [AWS Package](../packages/aws/)
 
 Responsible for interacting with AWS.
 
 Contains:
 
-* S3 client connection: [s3.client.ts](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/aws/src/clients/s3.client.ts)
-* SQS client connection: [sqs.client.ts](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/aws/src/clients/sqs.client.ts)
-* Presigned URL generation: [s3.service.ts](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/aws/src/services/s3.service.ts)
-* Receive SQS messages: [receiveMessages](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/aws/src/services/sqs.service.ts#L5)
-* Delete SQS messages: [deleteMessage](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/aws/src/services/sqs.service.ts#L17)
-* Download S3 objects: [downloadObject](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/aws/src/services/s3-storage.ts#L4)
+* S3 client connection: [s3.client.ts](../packages/aws/src/clients/s3.client.ts)
+* SQS client connection: [sqs.client.ts](../packages/aws/src/clients/sqs.client.ts)
+* Presigned URL generation: [s3.service.ts](../packages/aws/src/services/s3.service.ts)
+* Receive SQS messages: [receiveMessages](../packages/aws/src/services/sqs.service.ts#L5)
+* Delete SQS messages: [deleteMessage](../packages/aws/src/services/sqs.service.ts#L17)
+* Download S3 objects: [downloadObject](../packages/aws/src/services/s3-storage.ts#L4)
 
 The rest of the application never talks directly to the AWS SDK.
 
 ---
 
-## [Shared Package](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/shared/)
+## [Shared Package](../packages/shared/)
 
 Responsible for common contracts.
 
 Contains:
 
-* DTOs and API interfaces: [types/api.ts](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/shared/src/types/api.ts)
-* Shared Upload type declarations: [types/upload.ts](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/shared/src/types/upload.ts)
-* S3 event payloads parser: [parseS3Event](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/shared/src/events/parser.ts#L3)
-* S3 Event structure interfaces: [s3-event.ts](file:///Ubuntu/home/ashutosh/projects/Imagica/packages/shared/src/events/s3-event.ts)
+* DTOs and API interfaces: [types/api.ts](../packages/shared/src/types/api.ts)
+* Shared Upload type declarations: [types/upload.ts](../packages/shared/src/types/upload.ts)
+* S3 event payloads parser: [parseS3Event](../packages/shared/src/events/parser.ts#L3)
+* S3 Event structure interfaces: [s3-event.ts](../packages/shared/src/events/s3-event.ts)
 
 This prevents duplication between API and worker.
 
 ---
 
-## [Worker Package](file:///Ubuntu/home/ashutosh/projects/Imagica/apps/worker/)
+## [Worker Package](../apps/worker/)
 
 Responsible for:
 
-* Long polling SQS queue: [worker.ts](file:///Ubuntu/home/ashutosh/projects/Imagica/apps/worker/src/worker.ts)
+* Long polling SQS queue: [worker.ts](../apps/worker/src/worker.ts)
 * Parsing raw SQS bodies into S3 events
 * Dispatching events to registered handlers
 * Acknowledging (deleting) processed SQS messages
@@ -357,7 +357,7 @@ Nothing else.
 
 Currently responsible for:
 
-* Downloading Image: [handleS3ObjectCreated](file:///Ubuntu/home/ashutosh/projects/Imagica/apps/worker/src/handlers/s3-object-created.handler.ts#L4)
+* Downloading Image: [handleS3ObjectCreated](../apps/worker/src/handlers/s3-object-created.handler.ts#L4)
 
 Future responsibilities:
 
@@ -412,6 +412,8 @@ Download
     ▼
 Buffer
 ```
+
+For details on image compression, metadata parsing, and buffer handling, see the [Media Processing Pipeline documentation](media-processing.md).
 
 ---
 
