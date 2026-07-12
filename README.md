@@ -17,14 +17,14 @@ CloudPix aims to provide a scalable pipeline for processing user-uploaded images
 * AWS-native infrastructure
 * Image resizing, optimization, and compression
 * Format-aware output handling (JPEG, PNG, WebP)
+* OCR
 
 Future capabilities include:
 
 * Video transcoding (FFmpeg)
-* OCR
 * AI image captioning
 * NSFW detection
-* Background removal
+* Background remova
 * Duplicate image detection
 * Analytics dashboard
 
