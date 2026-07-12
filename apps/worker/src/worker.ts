@@ -1,7 +1,6 @@
 import { deleteMessage, receiveMessages } from "@cloudpix/aws";
 import { parseS3Event } from "@cloudpix/shared";
 import { handleS3ObjectCreated } from "./handlers/s3-object-created.handler";
-import { downloadObject } from "@cloudpix/aws";
 
 export async function startWorker() {
   console.log("Worker started");
@@ -23,6 +22,7 @@ export async function startWorker() {
         }
 
         await handleS3ObjectCreated(event);
+        
 
         await deleteMessage(message.ReceiptHandle);
       } catch (error) {

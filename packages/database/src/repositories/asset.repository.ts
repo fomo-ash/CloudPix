@@ -40,4 +40,16 @@ export class AssetRepository {
       },
     });
   }
+
+  async updateProcessingResult(uploadId: string, processedKey: string) {
+    return prisma.asset.update({
+      where: {
+        uploadId,
+      },
+      data: {
+        processedKey,
+        status: AssetStatus.COMPLETED,
+      },
+    });
+  }
 }

@@ -1,8 +1,10 @@
-import { downloadObject } from "@cloudpix/aws";
-import { S3ObjectCreatedEvent } from "@cloudpix/shared";
+import { downloadObject, uploadObject } from "@cloudpix/aws";
+import { S3ObjectCreatedEvent, getProcessedKey, getUploadIdFromKey } from "@cloudpix/shared";
 import { compressImage, readMetadata } from "../services/image.service";
-import { getProcessedKey } from "@cloudpix/shared";
-import { uploadObject } from "@cloudpix/aws";
+import { AssetRepository, AssetStatus } from "@cloudpix/database";
+
+const assetRepository = new AssetRepository();
+
 export async function handleS3ObjectCreated(
   event: S3ObjectCreatedEvent
 ): Promise<void> {
@@ -10,35 +12,54 @@ export async function handleS3ObjectCreated(
   console.log("Bucket:", event.bucket);
   console.log("Object:", event.objectKey);
 
-  const downloadedObject = await downloadObject(
-    event.bucket,
-    event.objectKey
-  );
+  const uploadId = getUploadIdFromKey(event.objectKey);
+  if (!uploadId) {
+    throw new Error(`Could not extract uploadId from object key: ${event.objectKey}`);
+  }
 
-  const compressedBuffer = await compressImage(
-  downloadedObject
-  );
-  const metadata = await readMetadata(downloadedObject);
+  // 1. Mark status as PROCESSING immediately
+  await assetRepository.updateStatus(uploadId, AssetStatus.PROCESSING);
+  console.log(`Asset status updated to PROCESSING for uploadId: ${uploadId}`);
 
-  const processedKey = getProcessedKey(
-    event.objectKey
-  );
+  try {
+    const downloadedObject = await downloadObject(
+      event.bucket,
+      event.objectKey
+    );
 
-  await uploadObject(
-    event.bucket,
-    processedKey,
-    compressedBuffer,
-    "image/jpeg"
-  );
+    const compressionResult = await compressImage(
+      downloadedObject
+    );
+    const metadata = await readMetadata(downloadedObject);
 
+    const processedKey = getProcessedKey(
+      event.objectKey
+    );
 
-  console.log(metadata);
+    await uploadObject(
+       event.bucket,
+       processedKey,
+       compressionResult.buffer,
+       compressionResult.mimeType
+    );
 
-  console.log(
-    `Downloaded ${downloadedObject.length} bytes`
-  );
+    // 2. Mark status as COMPLETED with processedKey
+    await assetRepository.updateProcessingResult(uploadId, processedKey);
 
-  console.log(
-  `Compressed: ${compressedBuffer.length} bytes`
-);
+    const asset = await assetRepository.findByUploadId(uploadId);
+
+    console.log("Found asset:", asset);
+    console.log("Database updated with processedKey:", processedKey);
+    console.log(metadata);
+    console.log(
+      `Downloaded ${downloadedObject.length} bytes`
+    );
+    console.log(
+      `Compressed: ${compressionResult.buffer.length} bytes`
+    );
+  } catch (error) {
+    // 3. Mark status as FAILED if any error occurs
+    await assetRepository.updateStatus(uploadId, AssetStatus.FAILED);
+    throw error;
+  }
 }

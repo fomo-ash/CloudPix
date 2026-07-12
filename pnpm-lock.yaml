@@ -118,6 +118,9 @@ importers:
       '@cloudpix/aws':
         specifier: workspace:^
         version: link:../../packages/aws
+      '@cloudpix/database':
+        specifier: workspace:^
+        version: link:../../packages/database
       '@cloudpix/env':
         specifier: workspace:^
         version: link:../../packages/env

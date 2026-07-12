@@ -7,6 +7,8 @@ docs
 
 # Local dependencies
 node_modules
+.pnpm-store
+
 
 # Build outputs
 dist

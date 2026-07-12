@@ -10,18 +10,16 @@ The project is designed as a portfolio-grade backend system inspired by architec
 
 CloudPix aims to provide a scalable pipeline for processing user-uploaded images.
 
-Current focus:
-
 * Production-grade backend architecture
 * Event-driven processing
 * Containerized development environment
 * Distributed system design
 * AWS-native infrastructure
+* Image resizing, optimization, and compression
+* Format-aware output handling (JPEG, PNG, WebP)
 
 Future capabilities include:
 
-* Image resizing and optimization
-* Multiple output formats (WebP, AVIF, JPEG)
 * Video transcoding (FFmpeg)
 * OCR
 * AI image captioning
@@ -29,6 +27,26 @@ Future capabilities include:
 * Background removal
 * Duplicate image detection
 * Analytics dashboard
+
+---
+
+## Image Processing & Status Lifecycle
+
+CloudPix features a fully automated, format-aware image processing pipeline running inside containerized workers:
+
+### 1. Format-Aware Compression
+The worker service parses input image metadata dynamically using `sharp` and outputs optimized versions matching the input:
+* **PNG:** Optimized using palette compression (`compressionLevel: 9`).
+* **WebP:** Compressed using lossy compression (`quality: 80`).
+* **JPEG:** Compressed using `mozjpeg` algorithms (`quality: 80`).
+* **Fallback:** Non-web formats fallback to high-quality optimized `jpeg`.
+
+### 2. Asset Lifecycle States
+All user-uploaded assets synchronize their state within a central PostgreSQL database through Prisma:
+* `UPLOADED`: Client requested a presigned upload URL, waiting for S3 upload.
+* `PROCESSING`: SQS message received, worker is actively downloading and compressing the image.
+* `COMPLETED`: Processing succeeded; compressed image uploaded back to S3, and `processedKey` database entry is updated.
+* `FAILED`: Processing failed at any step (automatically handled to update status to `FAILED` for full observability).
 
 ---
 
