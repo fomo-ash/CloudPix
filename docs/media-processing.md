@@ -146,11 +146,19 @@ Download Image
 
 ↓
 
-Compress Image
+Update Status to PROCESSING (Database)
 
 ↓
 
-Upload Processed Image
+Compress Image & Generate Thumbnail
+
+↓
+
+Upload Processed Assets to S3
+
+↓
+
+Update Status to COMPLETED with Keys (Database)
 ```
 
 Future responsibilities:
@@ -160,11 +168,11 @@ Download
 
 ↓
 
-Compress
+Update Status
 
 ↓
 
-Generate Thumbnail
+Compress & Generate Thumbnail
 
 ↓
 
@@ -172,7 +180,7 @@ OCR
 
 ↓
 
-Upload
+Upload Processed Assets
 
 ↓
 
@@ -283,26 +291,50 @@ Sharp provides a clean Node.js interface.
 
 ---
 
+# Media Processing Service
+
+To cleanly orchestrate different transformations, CloudPix uses `MediaProcessingService`.
+
+```typescript
+export class MediaProcessingService{
+    async process(buffer: Buffer): Promise<ProcessedMedia> {
+        const compressed=await compressImage(buffer);
+        const thumbnail=await createThumbnail(buffer);
+
+        return {
+      compressImage: compressed,
+      thumbnail: thumbnail
+    };
+    }
+}
+```
+
+This service takes the original downloaded buffer and coordinates independent processing steps, currently compression and thumbnail generation.
+
+---
+
 # Compression Pipeline
 
-Current compression settings are implemented in [image.service.ts](../apps/worker/src/services/image.service.ts#L7):
+Current compression settings are implemented in [image.service.ts](../apps/worker/src/services/image.service.ts):
 
 ```typescript
 export async function compressImage(
   buffer: Buffer
-): Promise<Buffer> {
-  return sharp(buffer)
+): Promise<CompressionResult> {
+  // ... metadata extraction ...
+  
+  let pipeline = sharp(buffer)
     .rotate()
     .resize({
       width: 1920,
       fit: "inside",
       withoutEnlargement: true,
     })
-    .jpeg({
-      quality: 80,
-      mozjpeg: true,
-    })
-    .toBuffer();
+    // ... formats and compression options ...
+
+  const compressedBuffer = await pipeline.toBuffer();
+  // ...
+  return { buffer: compressedBuffer, format, mimeType };
 }
 ```
 
@@ -348,6 +380,30 @@ Uses Mozilla's optimized JPEG encoder for improved compression efficiency.
 
 ---
 
+# Thumbnail Generation
+
+Alongside compression, CloudPix generates a small thumbnail for rapid UI loading.
+
+Implemented in `createThumbnail` within [image.service.ts](../apps/worker/src/services/image.service.ts):
+
+```typescript
+export async function createThumbnail(buffer: Buffer): Promise<Thumbnail> {
+    const thumbnailBuffer = await sharp(buffer)
+      .resize(150, 150, {
+        fit: 'cover', 
+        position: 'center'
+      })
+      .jpeg({ quality: 75 }) 
+      .toBuffer();
+      
+    return { buffer: thumbnailBuffer, mimeType: 'image/jpeg', format: 'jpeg' };
+}
+```
+
+This resizes the image to exactly `150x150` pixels, cropping from the center (`cover`), resulting in uniform, lightweight preview images.
+
+---
+
 # Processing Result
 
 Example:
@@ -372,11 +428,11 @@ This represents approximately a **53% reduction** in storage size while maintain
 
 ---
 
-# Why Upload the Processed Image?
+# Why Upload the Processed Assets?
 
 Initially, the compressed buffer only existed in memory.
 
-The pipeline now uploads the processed image back to S3 using [uploadObject](../packages/aws/src/services/s3-storage.ts#L22) and the path resolver [getProcessedKey](../packages/shared/src/utils/key.ts#L1).
+The pipeline now uploads both the compressed image and the thumbnail back to S3 using [uploadObject](../packages/aws/src/services/s3-storage.ts#L22) and the path resolvers in [key.ts](../packages/shared/src/utils/key.ts).
 
 ```text
 originals/
@@ -387,10 +443,14 @@ originals/
 
 processed/
     uploadId/
+        image.png
+
+thumbnails/
+    uploadId/
         image.jpg
 ```
 
-This allows processed media to be served independently of the original upload.
+This allows processed media and thumbnails to be served rapidly to the client, independently of the original large upload.
 
 ---
 
@@ -446,19 +506,22 @@ This provides **at-least-once delivery**, ensuring failed jobs can be retried.
 Receive SQS Message
         │
         ▼
-Parse Event
+Parse Event & Extract Upload ID
+        │
+        ▼
+Update PostgreSQL Asset Status to PROCESSING
         │
         ▼
 Download Original Image
         │
         ▼
-Read Metadata
+Process Media (Compress & Thumbnail)
         │
         ▼
-Compress Image
+Upload Processed Image & Thumbnail to S3
         │
         ▼
-Upload Processed Image
+Update PostgreSQL Asset Status to COMPLETED
         │
         ▼
 Delete SQS Message
@@ -468,25 +531,25 @@ Delete SQS Message
 
 # Upcoming Improvements
 
-The next stages of the pipeline will extend the handler without changing the worker.
+The next stages of the pipeline will extend the handler further to introduce text extraction capabilities.
 
 ```text
 Download
         │
         ▼
-Compress
+Update Status
         │
         ▼
-Thumbnail Generation
+Process Media
         │
         ▼
-OCR
+OCR (Optical Character Recognition)
         │
         ▼
 Upload Processed Assets
         │
         ▼
-Update PostgreSQL
+Update PostgreSQL (Save extracted text)
 ```
 
 This demonstrates one of CloudPix's core architectural goals: **the worker remains a generic message consumer, while all media-specific business logic evolves inside handlers and services.**
