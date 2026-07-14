@@ -52,3 +52,31 @@ export async function compressImage(
     mimeType,
   };
 }
+
+export interface Thumbnail{
+    buffer: Buffer,
+    mimeType: string,
+    format: "jpeg" | "png" | "webp",
+}
+
+export async function createThumbnail(buffer: Buffer): Promise<Thumbnail> {
+  try {
+    const thumbnailBuffer = await sharp(buffer)
+      .resize(150, 150, {
+        fit: 'cover', 
+        position: 'center'
+      })
+      .jpeg({ quality: 75 }) 
+      .toBuffer();
+    
+    console.log('Thumbnail created successfully!');
+    return {
+      buffer: thumbnailBuffer,
+      mimeType: 'image/jpeg',
+      format: 'jpeg'
+    };
+  } catch (error) {
+    console.error('Error generating thumbnail:', error);
+    throw error;
+  }
+}

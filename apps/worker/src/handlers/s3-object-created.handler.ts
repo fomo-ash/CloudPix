@@ -1,7 +1,8 @@
 import { downloadObject, uploadObject } from "@cloudpix/aws";
-import { S3ObjectCreatedEvent, getProcessedKey, getUploadIdFromKey } from "@cloudpix/shared";
+import { S3ObjectCreatedEvent, getProcessedKey, getUploadIdFromKey, getThumbnailKey } from "@cloudpix/shared";
 import { compressImage, readMetadata } from "../services/image.service";
 import { AssetRepository, AssetStatus } from "@cloudpix/database";
+import { mediaProcessingService } from "../services/media-processing.service";
 
 const assetRepository = new AssetRepository();
 
@@ -27,35 +28,43 @@ export async function handleS3ObjectCreated(
       event.objectKey
     );
 
-    const compressionResult = await compressImage(
-      downloadedObject
-    );
+    const processedMedia =
+    await mediaProcessingService.process(downloadedObject);
     const metadata = await readMetadata(downloadedObject);
 
     const processedKey = getProcessedKey(
       event.objectKey
     );
 
+    const thumbnailKey =
+    getThumbnailKey(event.objectKey);
+
     await uploadObject(
        event.bucket,
        processedKey,
-       compressionResult.buffer,
-       compressionResult.mimeType
+       processedMedia.compressImage.buffer,
+       processedMedia.compressImage.mimeType
+    );
+
+    await uploadObject(
+       event.bucket,
+       thumbnailKey,
+       processedMedia.thumbnail.buffer,
+       processedMedia.thumbnail.mimeType
     );
 
     // 2. Mark status as COMPLETED with processedKey
-    await assetRepository.updateProcessingResult(uploadId, processedKey);
+    await assetRepository.updateProcessingResult(uploadId, processedKey, thumbnailKey);
 
     const asset = await assetRepository.findByUploadId(uploadId);
 
-    console.log("Found asset:", asset);
     console.log("Database updated with processedKey:", processedKey);
     console.log(metadata);
     console.log(
       `Downloaded ${downloadedObject.length} bytes`
     );
     console.log(
-      `Compressed: ${compressionResult.buffer.length} bytes`
+      `Compressed: ${processedMedia.compressImage.buffer.length} bytes`
     );
   } catch (error) {
     // 3. Mark status as FAILED if any error occurs
