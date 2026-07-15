@@ -30,7 +30,6 @@ export async function handleS3ObjectCreated(
 
     const processedMedia =
     await mediaProcessingService.process(downloadedObject);
-    const metadata = await readMetadata(downloadedObject);
 
     const processedKey = getProcessedKey(
       event.objectKey
@@ -53,13 +52,16 @@ export async function handleS3ObjectCreated(
        processedMedia.thumbnail.mimeType
     );
 
-    // 2. Mark status as COMPLETED with processedKey
-    await assetRepository.updateProcessingResult(uploadId, processedKey, thumbnailKey);
+    await assetRepository.updateProcessingResult(
+      uploadId,
+      processedKey,
+      thumbnailKey,
+      processedMedia.ocrText
+    );
 
     const asset = await assetRepository.findByUploadId(uploadId);
 
     console.log("Database updated with processedKey:", processedKey);
-    console.log(metadata);
     console.log(
       `Downloaded ${downloadedObject.length} bytes`
     );
