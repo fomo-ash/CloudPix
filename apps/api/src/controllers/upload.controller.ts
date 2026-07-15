@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import {
   uploadService,
 } from "../services/upload.service";
+import { logger } from "@cloudpix/shared";
 
 import type {
   PresignedUploadRequest,
@@ -34,7 +35,7 @@ export async function getPresignedUrl(
 
   } catch (error) {
 
-    console.error(error);
+    logger.error({ err: error }, "Error getting presigned url");
 
     return res.status(500).json({
       message: "Internal Server Error",
@@ -73,8 +74,8 @@ export async function getUploadStatus(
         processedKey: asset.processedKey,
       })
     } catch (error) {
-        console.error("Error fetching upload status", error);
-        return res.status(500).json({
+    logger.error({ err: error, uploadId: req.params.uploadId }, "Error fetching upload status");
+    return res.status(500).json({
             message:"Internal server Error"
         })
     }

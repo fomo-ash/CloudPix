@@ -1,5 +1,5 @@
 import { downloadObject, uploadObject } from "@cloudpix/aws";
-import { S3ObjectCreatedEvent, getProcessedKey, getUploadIdFromKey, getThumbnailKey } from "@cloudpix/shared";
+import { S3ObjectCreatedEvent, getProcessedKey, getUploadIdFromKey, getThumbnailKey, logger } from "@cloudpix/shared";
 import { compressImage, readMetadata } from "../services/image.service";
 import { AssetRepository, AssetStatus } from "@cloudpix/database";
 import { mediaProcessingService } from "../services/media-processing.service";
@@ -10,8 +10,7 @@ export async function handleS3ObjectCreated(
   event: S3ObjectCreatedEvent
 ): Promise<void> {
 
-  console.log("Bucket:", event.bucket);
-  console.log("Object:", event.objectKey);
+  logger.info({ bucket: event.bucket, objectKey: event.objectKey }, "Processing S3 object created event");
 
   const uploadId = getUploadIdFromKey(event.objectKey);
   if (!uploadId) {
@@ -20,7 +19,7 @@ export async function handleS3ObjectCreated(
 
   // 1. Mark status as PROCESSING immediately
   await assetRepository.updateStatus(uploadId, AssetStatus.PROCESSING);
-  console.log(`Asset status updated to PROCESSING for uploadId: ${uploadId}`);
+  logger.info({ uploadId }, "Asset status updated to PROCESSING");
 
   try {
     const downloadedObject = await downloadObject(
