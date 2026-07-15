@@ -54,4 +54,12 @@ export class AssetRepository {
       },
     });
   }
+
+  async findById(id: string) {
+  return prisma.asset.findUnique({
+    where: {
+      id,
+    },
+  });
+  }
 }
