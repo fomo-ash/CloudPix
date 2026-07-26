@@ -3,17 +3,32 @@ import type {
   PreSignedUploadResponse,
 } from "@cloudpix/shared";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+/* ─── Types ─── */
+
+export interface UploadStatusResponse {
+  id: string;
+  uploadId: string;
+  status: "UPLOADED" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  ocrText: string | null;
+  thumbnailKey: string | null;
+  processedKey: string | null;
+  thumbnailUrl?: string | null;
+  processedUrl?: string | null;
+  originalUrl?: string | null;
+}
+
+/* ─── Presigned Upload ─── */
 
 /**
  * Request a presigned upload URL from the Express backend.
- * POST /api/uploads/url
+ * POST /api/upload/presigned-url
+ *
+ * Requests are proxied through Next.js rewrites to avoid CORS.
  */
 export async function getPresignedUploadUrl(
   payload: PresignedUploadRequest
 ): Promise<PreSignedUploadResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/uploads/url`, {
+  const res = await fetch("/api/upload/presigned-url", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -29,6 +44,8 @@ export async function getPresignedUploadUrl(
 
   return res.json() as Promise<PreSignedUploadResponse>;
 }
+
+/* ─── S3 Upload ─── */
 
 /**
  * Upload a file directly to S3 using a presigned URL.
@@ -63,4 +80,64 @@ export function uploadFileToS3(
     xhr.setRequestHeader("Content-Type", file.type);
     xhr.send(file);
   });
+}
+
+/* ─── Upload Status ─── */
+
+/**
+ * Fetch the processing status of an upload.
+ * GET /api/upload/:uploadId/status
+ */
+export async function getUploadStatus(
+  uploadId: string
+): Promise<UploadStatusResponse> {
+  const res = await fetch(
+    `/api/upload/${encodeURIComponent(uploadId)}/status`
+  );
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(
+      (error as { message?: string }).message ??
+        `Failed to fetch upload status (${res.status})`
+    );
+  }
+
+  return res.json() as Promise<UploadStatusResponse>;
+}
+
+/* ─── Asset History ─── */
+
+export interface AssetResponse {
+  id: string;
+  uploadId: string;
+  originalFileName: string;
+  mimeType: string;
+  size: number;
+  status: "UPLOADED" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  createdAt: string;
+  s3Key?: string;
+  processedKey?: string | null;
+  thumbnailKey?: string | null;
+  processedUrl?: string | null;
+  thumbnailUrl?: string | null;
+  originalUrl?: string | null;
+}
+
+/**
+ * Fetch recent uploads from the backend.
+ * GET /api/asset
+ */
+export async function fetchRecentUploads(): Promise<AssetResponse[]> {
+  const res = await fetch("/api/asset");
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(
+      (error as { message?: string }).message ??
+        `Failed to fetch recent uploads (${res.status})`
+    );
+  }
+
+  return res.json() as Promise<AssetResponse[]>;
 }

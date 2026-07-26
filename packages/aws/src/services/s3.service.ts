@@ -1,4 +1,5 @@
 import {
+  GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
 
@@ -19,5 +20,19 @@ export async function generateUploadUrl(
 
   return getSignedUrl(s3Client, command, {
     expiresIn: 300,
+  });
+}
+
+export async function generatePresignedGetUrl(
+  key: string,
+  expiresIn: number = 3600
+): Promise<string> {
+  const command = new GetObjectCommand({
+    Bucket: awsConfig.bucketName,
+    Key: key,
+  });
+
+  return getSignedUrl(s3Client, command, {
+    expiresIn,
   });
 }

@@ -1,0 +1,54 @@
+services:
+  - type: web
+    name: cloudpix-api
+    env: node
+    # Build command builds the API and its dependencies (shared, db, etc)
+    buildCommand: pnpm install && pnpm run build --filter=@cloudpix/api...
+    startCommand: cd apps/api && pnpm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3100"
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: S3_ORIGINAL_BUCKET
+        sync: false
+      - key: S3_PROCESSED_BUCKET
+        sync: false
+      - key: SQS_IMAGE_QUEUE
+        sync: false
+
+  - type: worker
+    name: cloudpix-worker
+    env: node
+    # Build command builds the worker and its dependencies
+    buildCommand: pnpm install && pnpm run build --filter=@cloudpix/worker...
+    startCommand: cd apps/worker && pnpm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: S3_ORIGINAL_BUCKET
+        sync: false
+      - key: S3_PROCESSED_BUCKET
+        sync: false
+      - key: SQS_IMAGE_QUEUE
+        sync: false

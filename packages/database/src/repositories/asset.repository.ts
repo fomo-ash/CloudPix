@@ -62,4 +62,13 @@ export class AssetRepository {
     },
   });
   }
+
+  async findRecentUploads() {
+    return prisma.asset.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 10,
+    });
+  }
 }

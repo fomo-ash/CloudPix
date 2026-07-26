@@ -9,7 +9,6 @@ import {
   ScanText,
   CheckCircle2,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -22,59 +21,14 @@ export interface PipelineStage {
   status: PipelineStageStatus;
 }
 
-const statusConfig: Record<
-  PipelineStageStatus,
-  { badge: "outline" | "info" | "success" | "error"; label: string }
-> = {
-  pending: { badge: "outline", label: "Pending" },
-  active: { badge: "info", label: "Active" },
-  success: { badge: "success", label: "Success" },
-  failed: { badge: "error", label: "Failed" },
-};
-
 const defaultStages: PipelineStage[] = [
-  {
-    id: "upload",
-    label: "Upload",
-    icon: <Upload className="h-4 w-4" />,
-    status: "success",
-  },
-  {
-    id: "s3",
-    label: "AWS S3",
-    icon: <CloudUpload className="h-4 w-4" />,
-    status: "success",
-  },
-  {
-    id: "sqs",
-    label: "AWS SQS",
-    icon: <MessageSquare className="h-4 w-4" />,
-    status: "success",
-  },
-  {
-    id: "worker",
-    label: "Worker",
-    icon: <Cpu className="h-4 w-4" />,
-    status: "active",
-  },
-  {
-    id: "sharp",
-    label: "Sharp Compression",
-    icon: <Minimize2 className="h-4 w-4" />,
-    status: "pending",
-  },
-  {
-    id: "ocr",
-    label: "OCR",
-    icon: <ScanText className="h-4 w-4" />,
-    status: "pending",
-  },
-  {
-    id: "completed",
-    label: "Completed",
-    icon: <CheckCircle2 className="h-4 w-4" />,
-    status: "pending",
-  },
+  { id: "upload", label: "Upload", icon: <Upload className="h-3.5 w-3.5" />, status: "pending" },
+  { id: "s3", label: "AWS S3", icon: <CloudUpload className="h-3.5 w-3.5" />, status: "pending" },
+  { id: "sqs", label: "AWS SQS", icon: <MessageSquare className="h-3.5 w-3.5" />, status: "pending" },
+  { id: "worker", label: "Worker", icon: <Cpu className="h-3.5 w-3.5" />, status: "pending" },
+  { id: "sharp", label: "Compression", icon: <Minimize2 className="h-3.5 w-3.5" />, status: "pending" },
+  { id: "ocr", label: "OCR", icon: <ScanText className="h-3.5 w-3.5" />, status: "pending" },
+  { id: "completed", label: "Completed", icon: <CheckCircle2 className="h-3.5 w-3.5" />, status: "pending" },
 ];
 
 interface PipelineVisualizationProps {
@@ -87,28 +41,26 @@ export function PipelineVisualization({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Cpu className="h-4 w-4 text-[var(--color-text-muted)]" />
+        <CardTitle className="text-[13px] font-medium text-[var(--color-fog)]">
           Processing Pipeline
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="relative flex flex-col gap-0">
           {stages.map((stage, index) => {
-            const config = statusConfig[stage.status];
             const isLast = index === stages.length - 1;
 
             return (
-              <div key={stage.id} className="relative flex items-start gap-4">
+              <div key={stage.id} className="relative flex items-start gap-3.5">
                 {/* Connector line */}
                 {!isLast && (
-                  <div className="absolute left-[17px] top-[36px] h-[calc(100%-2px)] w-px">
+                  <div className="absolute left-[11px] top-[26px] h-[calc(100%-2px)] w-px">
                     <div
                       className={cn(
                         "h-full w-full",
                         stage.status === "success"
-                          ? "bg-[var(--color-status-success)]/40"
-                          : "bg-[var(--color-border)]"
+                          ? "bg-[var(--color-steel)]"
+                          : "bg-[var(--color-graphite)]"
                       )}
                     />
                   </div>
@@ -117,38 +69,58 @@ export function PipelineVisualization({
                 {/* Node */}
                 <div
                   className={cn(
-                    "relative z-10 flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-full border-2 transition-all duration-500",
+                    "relative z-10 flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full border transition-all duration-300",
                     stage.status === "success" &&
-                      "border-[var(--color-status-success)] bg-[var(--color-status-success-muted)] text-[var(--color-status-success)]",
+                      "border-[var(--color-steel)] text-[var(--color-bone)]",
                     stage.status === "active" &&
-                      "border-[var(--color-accent)] bg-[var(--color-accent-muted)] text-[var(--color-accent)]",
+                      "border-[var(--color-copper)] text-[var(--color-copper)]",
                     stage.status === "failed" &&
-                      "border-[var(--color-status-error)] bg-[var(--color-status-error-muted)] text-[var(--color-status-error)]",
+                      "border-[var(--color-status-error)] text-[var(--color-status-error)]",
                     stage.status === "pending" &&
-                      "border-[var(--color-border)] bg-[var(--color-surface-raised)] text-[var(--color-text-muted)]"
+                      "border-[var(--color-ash)] text-[var(--color-ash)]"
                   )}
                   style={
                     stage.status === "active"
-                      ? { animation: "pulse-glow 2s infinite" }
+                      ? { animation: "pulse-subtle 2s infinite" }
                       : undefined
                   }
                 >
                   {stage.icon}
                 </div>
 
-                {/* Content */}
-                <div className="flex min-w-0 flex-1 items-center justify-between pb-6">
+                {/* Label */}
+                <div className="flex min-w-0 flex-1 items-center justify-between pb-5">
                   <span
                     className={cn(
-                      "text-sm font-medium",
+                      "text-[13px]",
                       stage.status === "pending"
-                        ? "text-[var(--color-text-muted)]"
-                        : "text-[var(--color-text-primary)]"
+                        ? "text-[var(--color-steel)] opacity-80"
+                        : stage.status === "active"
+                          ? "text-[var(--color-bone)] font-medium"
+                          : stage.status === "failed"
+                            ? "text-[var(--color-status-error)]"
+                            : "text-[var(--color-fog)]"
                     )}
                   >
                     {stage.label}
                   </span>
-                  <Badge variant={config.badge}>{config.label}</Badge>
+
+                  {stage.status !== "pending" && (
+                    <span
+                      className={cn(
+                        "text-[11px]",
+                        stage.status === "active" && "text-[var(--color-copper)]",
+                        stage.status === "success" && "text-[var(--color-steel)]",
+                        stage.status === "failed" && "text-[var(--color-status-error)]"
+                      )}
+                    >
+                      {stage.status === "active"
+                        ? "Active"
+                        : stage.status === "success"
+                          ? "Done"
+                          : "Failed"}
+                    </span>
+                  )}
                 </div>
               </div>
             );

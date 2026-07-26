@@ -4,26 +4,31 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-steel)] disabled:pointer-events-none disabled:opacity-40 cursor-pointer",
   {
     variants: {
       variant: {
+        /* White pill — highest emphasis, scarce resource */
         default:
-          "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] shadow-[0_1px_2px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]",
+          "bg-[var(--color-paper-white)] text-[var(--color-obsidian)] hover:bg-[var(--color-bone)] rounded-full",
+        /* Ghost outline — secondary action */
         secondary:
-          "bg-[var(--color-surface-raised)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:border-[var(--color-border-hover)] hover:bg-[var(--color-surface)]",
+          "bg-transparent text-[var(--color-paper-white)] border border-[var(--color-paper-white)] hover:bg-[var(--color-paper-white)]/5 rounded-full",
+        /* Steel outline — tertiary, muted */
         outline:
-          "border border-[var(--color-border)] bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border-hover)]",
+          "border border-[var(--color-steel)] bg-transparent text-[var(--color-fog)] hover:text-[var(--color-bone)] hover:border-[var(--color-mist)] rounded-full",
+        /* Ghost — no border, no fill */
         ghost:
-          "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface)]",
+          "text-[var(--color-fog)] hover:text-[var(--color-bone)] hover:bg-[var(--color-carbon)] rounded-[var(--radius-sm)]",
+        /* Destructive */
         destructive:
-          "bg-[var(--color-status-error)] text-white hover:bg-[#dc2626]",
+          "bg-[var(--color-status-error)] text-white hover:bg-[var(--color-status-error)]/90 rounded-full",
       },
       size: {
-        default: "h-9 px-4 py-2 rounded-[var(--radius-md)]",
-        sm: "h-8 px-3 text-xs rounded-[var(--radius-sm)]",
-        lg: "h-11 px-8 text-base rounded-[var(--radius-md)]",
-        icon: "h-9 w-9 rounded-[var(--radius-md)]",
+        default: "h-9 px-5 py-2",
+        sm: "h-8 px-4 text-xs",
+        lg: "h-11 px-8 text-[15px]",
+        icon: "h-9 w-9 rounded-[var(--radius-sm)]",
       },
     },
     defaultVariants: {

@@ -3,23 +3,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-[var(--radius-full)] px-2.5 py-0.5 text-xs font-medium transition-colors",
+  "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors border",
   {
     variants: {
       variant: {
         default:
-          "bg-[var(--color-accent-muted)] text-[var(--color-accent-hover)] border border-[var(--color-accent)]/20",
+          "border-[var(--color-steel)] text-[var(--color-fog)] bg-transparent",
         success:
-          "bg-[var(--color-status-success-muted)] text-[var(--color-status-success)] border border-[var(--color-status-success)]/20",
+          "border-[var(--color-status-success)]/30 text-[var(--color-status-success)] bg-transparent",
         warning:
-          "bg-[var(--color-status-warning-muted)] text-[var(--color-status-warning)] border border-[var(--color-status-warning)]/20",
+          "border-[var(--color-status-warning)]/30 text-[var(--color-status-warning)] bg-transparent",
         error:
-          "bg-[var(--color-status-error-muted)] text-[var(--color-status-error)] border border-[var(--color-status-error)]/20",
-        info: "bg-[var(--color-status-info-muted)] text-[var(--color-status-info)] border border-[var(--color-status-info)]/20",
+          "border-[var(--color-status-error)]/30 text-[var(--color-status-error)] bg-transparent",
+        info: "border-[var(--color-status-info)]/30 text-[var(--color-status-info)] bg-transparent",
         processing:
-          "bg-[var(--color-status-processing-muted)] text-[var(--color-status-processing)] border border-[var(--color-status-processing)]/20",
+          "border-[var(--color-status-processing)]/30 text-[var(--color-status-processing)] bg-transparent",
         outline:
-          "border border-[var(--color-border)] text-[var(--color-text-secondary)]",
+          "border-[var(--color-steel)] text-[var(--color-fog)] bg-transparent",
+        copper:
+          "border-[var(--color-copper)]/30 text-[var(--color-copper)] bg-transparent",
       },
     },
     defaultVariants: {

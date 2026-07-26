@@ -4,6 +4,7 @@ import {
   uploadService,
 } from "../services/upload.service";
 import { logger } from "@cloudpix/shared";
+import { generatePresignedGetUrl } from "@cloudpix/aws";
 
 import type {
   PresignedUploadRequest,
@@ -65,6 +66,16 @@ export async function getUploadStatus(
         })
       }
 
+      const processedUrl = asset.processedKey
+        ? await generatePresignedGetUrl(asset.processedKey)
+        : null;
+      const thumbnailUrl = asset.thumbnailKey
+        ? await generatePresignedGetUrl(asset.thumbnailKey)
+        : null;
+      const originalUrl = asset.objectKey
+        ? await generatePresignedGetUrl(asset.objectKey)
+        : null;
+
       return res.status(200).json({
         id: asset.id,
         uploadId: asset.uploadId,
@@ -72,6 +83,9 @@ export async function getUploadStatus(
         ocrText: asset.ocrText,
         thumbnailKey: asset.thumbnailKey,
         processedKey: asset.processedKey,
+        thumbnailUrl,
+        processedUrl,
+        originalUrl,
       })
     } catch (error) {
     logger.error({ err: error, uploadId: req.params.uploadId }, "Error fetching upload status");

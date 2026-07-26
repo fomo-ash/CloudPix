@@ -1,15 +1,15 @@
 "use client";
 
 import { useCallback, useState, useRef, type DragEvent } from "react";
-import { Upload, ImageIcon } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { getPresignedUploadUrl, uploadFileToS3 } from "@/lib/api";
 
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SIZE = 10 * 1024 * 1024;
 
 export interface SelectedFile {
   file: File;
@@ -19,11 +19,15 @@ export interface SelectedFile {
 interface UploadCardProps {
   onFileSelected?: (file: SelectedFile | null) => void;
   onUploadComplete?: (s3Key: string) => void;
+  onUploadError?: (error: string) => void;
+  disabled?: boolean;
 }
 
 export function UploadCard({
   onFileSelected,
   onUploadComplete,
+  onUploadError,
+  disabled = false,
 }: UploadCardProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
@@ -33,7 +37,7 @@ export function UploadCard({
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      return "Unsupported file type. Use JPEG, PNG, WebP, or GIF.";
+      return "Unsupported format. Use PNG, JPG, or WebP.";
     }
     if (file.size > MAX_SIZE) {
       return "File too large. Maximum size is 10 MB.";
@@ -49,7 +53,6 @@ export function UploadCard({
         setError(validationError);
         return;
       }
-
       const preview = URL.createObjectURL(file);
       const selected = { file, preview };
       setSelectedFile(selected);
@@ -75,7 +78,6 @@ export function UploadCard({
       e.preventDefault();
       e.stopPropagation();
       setIsDragging(false);
-
       const file = e.dataTransfer.files[0];
       if (file) handleFile(file);
     },
@@ -87,14 +89,11 @@ export function UploadCard({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFile(file);
-    // Reset input so same file can be re-selected
     e.target.value = "";
   };
 
   const handleRemove = useCallback(() => {
-    if (selectedFile) {
-      URL.revokeObjectURL(selectedFile.preview);
-    }
+    if (selectedFile) URL.revokeObjectURL(selectedFile.preview);
     setSelectedFile(null);
     setUploadProgress(null);
     setError(null);
@@ -103,31 +102,26 @@ export function UploadCard({
 
   const handleUpload = useCallback(async () => {
     if (!selectedFile) return;
-
     try {
       setError(null);
       setUploadProgress(0);
-
-      // Step 1: Get presigned URL from Express backend
       const { uploadUrl, s3Key } = await getPresignedUploadUrl({
         fileName: selectedFile.file.name,
         fileType: selectedFile.file.type,
       });
-
-      // Step 2: Upload directly to S3 with progress
       await uploadFileToS3(uploadUrl, selectedFile.file, (percent) => {
         setUploadProgress(percent);
       });
-
       setUploadProgress(100);
       onUploadComplete?.(s3Key);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Upload failed. Please try again."
-      );
+      const msg =
+        err instanceof Error ? err.message : "Upload failed. Please try again.";
+      setError(msg);
       setUploadProgress(null);
+      onUploadError?.(msg);
     }
-  }, [selectedFile, onUploadComplete]);
+  }, [selectedFile, onUploadComplete, onUploadError]);
 
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -135,60 +129,56 @@ export function UploadCard({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const isUploading = uploadProgress !== null && uploadProgress < 100;
+
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <ImageIcon className="h-4 w-4 text-[var(--color-text-muted)]" />
-            Upload Image
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {/* Drop zone */}
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            onClick={handleBrowse}
+            onClick={disabled ? undefined : handleBrowse}
             className={cn(
-              "group relative flex cursor-pointer flex-col items-center justify-center rounded-[var(--radius-md)] border-2 border-dashed px-6 py-12 transition-all duration-300",
+              "group relative flex flex-col items-center justify-center rounded-[10px] border border-dashed px-6 py-14 transition-all duration-300",
+              disabled ? "pointer-events-none opacity-40" : "cursor-pointer",
               isDragging
-                ? "border-[var(--color-accent)] bg-[var(--color-accent-muted)]"
-                : "border-[var(--color-border-hover)] hover:border-[var(--color-accent)]/50 hover:bg-[var(--color-surface-raised)]/50"
+                ? "border-[var(--color-copper)] bg-[var(--color-copper)]/5"
+                : "border-[var(--color-slate)] hover:border-[var(--color-steel)]"
             )}
           >
             <div
               className={cn(
-                "mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] transition-colors duration-300",
+                "mb-4 flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300",
                 isDragging
-                  ? "bg-[var(--color-accent)] text-white"
-                  : "bg-[var(--color-surface-raised)] text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)]"
+                  ? "border-[var(--color-copper)] text-[var(--color-copper)]"
+                  : "border-[var(--color-slate)] text-[var(--color-steel)] group-hover:text-[var(--color-bone)]"
               )}
             >
-              <Upload className="h-5 w-5" />
+              <Upload className="h-4 w-4" />
             </div>
 
-            <p className="text-sm font-medium text-[var(--color-text-secondary)]">
+            <p className="text-sm font-medium text-[var(--color-bone)]">
               {isDragging
                 ? "Drop your image here"
-                : "Drag & drop your images here"}
+                : "Drag & drop your image here"}
             </p>
-            <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-              JPEG, PNG, WebP, GIF — up to 10 MB
+            <p className="mt-1.5 text-xs text-[var(--color-steel)]">
+              PNG, JPG, JPEG, WEBP — up to 10 MB
             </p>
 
-            <Button
-              variant="secondary"
-              size="sm"
-              className="mt-4"
+            <button
+              className="mt-4 text-sm font-medium text-[var(--color-copper)] transition-colors hover:text-[var(--color-copper)]/80 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 handleBrowse();
               }}
+              disabled={disabled}
             >
-              Browse Files
-            </Button>
+              Browse files
+            </button>
 
             <input
               ref={inputRef}
@@ -196,25 +186,26 @@ export function UploadCard({
               accept={ACCEPTED_TYPES.join(",")}
               onChange={handleInputChange}
               className="hidden"
+              disabled={disabled}
             />
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mt-3 rounded-[var(--radius-sm)] bg-[var(--color-status-error-muted)] px-3 py-2 text-xs text-[var(--color-status-error)]">
+            <div className="mt-3 rounded-[10px] border border-[var(--color-status-error)]/20 px-4 py-2.5 text-xs text-[var(--color-status-error)]">
               {error}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Selected file card */}
+      {/* Selected file */}
       {selectedFile && (
-        <Card className="animate-[fade-in_0.3s_ease-out]">
+        <Card className="animate-[fade-in_0.25s_ease-out]">
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
               {/* Thumbnail */}
-              <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface-raised)]">
+              <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-[10px] border border-[var(--color-graphite)] bg-[var(--color-carbon)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={selectedFile.preview}
@@ -225,18 +216,17 @@ export function UploadCard({
 
               {/* File info */}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">
+                <p className="truncate text-sm font-medium text-[var(--color-bone)]">
                   {selectedFile.file.name}
                 </p>
-                <p className="text-xs text-[var(--color-text-muted)]">
+                <p className="text-xs text-[var(--color-steel)]">
                   {formatSize(selectedFile.file.size)}
                 </p>
 
-                {/* Progress bar */}
                 {uploadProgress !== null && (
-                  <div className="mt-2 space-y-1">
+                  <div className="mt-2.5 space-y-1.5">
                     <Progress value={uploadProgress} />
-                    <p className="text-[10px] text-[var(--color-text-muted)]">
+                    <p className="text-[11px] text-[var(--color-steel)]">
                       {uploadProgress < 100
                         ? `Uploading… ${uploadProgress}%`
                         : "Upload complete"}
@@ -248,31 +238,32 @@ export function UploadCard({
               {/* Actions */}
               <div className="flex items-center gap-2">
                 {uploadProgress === null && (
-                  <Button size="sm" onClick={handleUpload}>
+                  <Button size="sm" onClick={handleUpload} disabled={disabled}>
                     Upload
                   </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleRemove}
-                  className="h-8 w-8 text-[var(--color-text-muted)] hover:text-[var(--color-status-error)]"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                {!isUploading && (
+                  <button
+                    onClick={handleRemove}
+                    disabled={disabled}
+                    className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-steel)] transition-colors hover:text-[var(--color-status-error)] cursor-pointer disabled:opacity-40"
                   >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </Button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
           </CardContent>
