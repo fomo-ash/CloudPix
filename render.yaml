@@ -14,8 +14,6 @@ services:
         value: "3100"
       - key: DATABASE_URL
         sync: false
-      - key: REDIS_URL
-        sync: false
       - key: AWS_REGION
         sync: false
       - key: AWS_ACCESS_KEY_ID
