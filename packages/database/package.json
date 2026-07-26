@@ -6,7 +6,7 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json && cp -r generated dist/",
+    "build": "prisma generate && tsc -p tsconfig.json && cp -r generated dist/",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio"

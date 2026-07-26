@@ -4,7 +4,7 @@ services:
     env: node
     plan: free # Explicitly sets the free tier
     # Build both the API and the Worker
-    buildCommand: pnpm install && pnpm run build --filter=@cloudpix/api... && pnpm run build --filter=@cloudpix/worker...
+    buildCommand: NODE_ENV=development pnpm install && pnpm run build --filter=@cloudpix/api... && pnpm run build --filter=@cloudpix/worker...
     # Start both processes concurrently in the same free container
     startCommand: node apps/api/dist/server.js & node apps/worker/dist/index.js & wait -n
     envVars:
