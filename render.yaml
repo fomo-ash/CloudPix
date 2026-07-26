@@ -14,15 +14,18 @@ services:
         value: "3100"
       - key: DATABASE_URL
         sync: false
+      - key: DIRECT_URL
+        sync: false
       - key: AWS_REGION
         sync: false
       - key: AWS_ACCESS_KEY_ID
         sync: false
       - key: AWS_SECRET_ACCESS_KEY
         sync: false
-      - key: S3_ORIGINAL_BUCKET
+      - key: AWS_S3_BUCKET_NAME
         sync: false
-      - key: S3_PROCESSED_BUCKET
+      - key: AWS_SQS_QUEUE_URL
         sync: false
-      - key: SQS_IMAGE_QUEUE
+      - key: AWS_SQS_QUEUE_ARN
         sync: false
+

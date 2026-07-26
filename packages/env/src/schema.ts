@@ -4,8 +4,11 @@ export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
   PORT: z.coerce.number().default(3100),
+  WEB_PORT: z.coerce.number().optional(),
+  WORKER_HEARTBEAT_INTERVAL: z.coerce.number().optional(),
 
   DATABASE_URL: z.string(),
+  DIRECT_URL: z.string().optional(),
   REDIS_URL: z.string().optional(),
 
   AWS_REGION: z.string(),
