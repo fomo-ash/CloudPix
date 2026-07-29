@@ -10,7 +10,7 @@ const buttonVariants = cva(
       variant: {
         /* White pill — highest emphasis, scarce resource */
         default:
-          "bg-[var(--color-paper-white)] text-[var(--color-obsidian)] hover:bg-[var(--color-bone)] rounded-full",
+          "bg-[var(--color-pure-white)] text-[var(--color-obsidian)] hover:bg-[var(--color-bone)] rounded-full",
         /* Ghost outline — secondary action */
         secondary:
           "bg-transparent text-[var(--color-paper-white)] border border-[var(--color-paper-white)] hover:bg-[var(--color-paper-white)]/5 rounded-full",

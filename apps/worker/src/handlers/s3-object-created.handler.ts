@@ -55,7 +55,8 @@ export async function handleS3ObjectCreated(
       uploadId,
       processedKey,
       thumbnailKey,
-      processedMedia.ocrText
+      processedMedia.ocrText,
+      processedMedia.compressImage.buffer.length
     );
 
     const asset = await assetRepository.findByUploadId(uploadId);
